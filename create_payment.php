@@ -27,15 +27,35 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Content-Type: application/json',
     'Authorization: Bearer ' . $api_key
 ]);
+// Disable SSL verification for testing (not recommended for production)
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
 $response = curl_exec($ch);
+$curl_error = curl_error($ch);
 curl_close($ch);
 
+// Log amount and raw response for debugging
+error_log("Amount sent: " . $amount);
+error_log("Raw API response: " . $response);
+
+if ($curl_error) {
+    echo json_encode(["error" => "Erreur cURL: " . $curl_error]);
+    exit;
+}
+
+// For debugging: output raw response if json_decode fails
 $result = json_decode($response, true);
+
+if (json_last_error() !== JSON_ERROR_NONE) {
+    echo json_encode(["error" => "Réponse API invalide", "raw_response" => $response]);
+    exit;
+}
 
 if (isset($result['url'])) {
     echo json_encode(["url" => $result['url']]);
 } else {
-    echo json_encode(["error" => "Impossible de créer la transaction"]);
+    // Return the full API response for debugging
+    echo json_encode(["error" => "Impossible de créer la transaction", "details" => $result]);
 }
 ?>
