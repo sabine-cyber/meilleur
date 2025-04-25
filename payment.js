@@ -1,5 +1,5 @@
 function launchPayment(amount) {
-    fetch('/meilleur_prono/create_payment.php', {
+    fetch('/create_payment.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
